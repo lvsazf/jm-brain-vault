@@ -1,0 +1,14 @@
+# Local private configuration containing user personal/client data
+.config.toml
+config.json
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS artifacts
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db

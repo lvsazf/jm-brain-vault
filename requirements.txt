@@ -1,0 +1,12 @@
+# ==============================================================================
+# JM Brain Vault Dependencies
+# ==============================================================================
+
+# Core Requirements
+pyyaml>=6.0
+
+# Optional: Commercial Exporter (Word .docx generation)
+python-docx>=1.0.0
+
+# Optional: Voice Transcription Pipeline (Offline Local Whisper)
+faster-whisper>=1.0.0
