@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 smart_flashback.py
-Smart Flashback & Associative Thinking Partner for Brain_Vault.
-Surfaces latent historical insights and forgotten gold nuggets from past notes (>30 days old)
-that connect with the user's current train of thought.
+Smart Flashback & Associative Thinking Partner for Brain Vault.
+Surfaces latent historical insights and forgotten gold nuggets from persistent SQLite DB.
 """
 
 import os
 import re
 import sys
 import time
-import sqlite3
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config_loader import get_vault_path
+from vault_db import get_db, sync_index
 
 vault_path = get_vault_path()
 query = " ".join(sys.argv[1:]).strip()
@@ -22,62 +22,45 @@ if not query:
     print("用法: python3 smart_flashback.py <当前正在思考的业务关键词或主题>")
     sys.exit(0)
 
-now = time.time()
-DAY_SECS = 86400
+# 1. Fast incremental sync
+sync_index(vault_path)
 
-# Setup In-Memory FTS5
-con = sqlite3.connect(":memory:")
+# 2. Query persistent SQLite FTS5 database
+con = get_db()
 cur = con.cursor()
-cur.execute('''
-CREATE VIRTUAL TABLE vault_flashback USING fts5(
-    path UNINDEXED,
-    filename,
-    content,
-    mtime UNINDEXED,
-    tokenize="trigram"
-);
-''')
 
-for root, dirs, files in os.walk(vault_path):
-    if ".obsidian" in root or "newdao-ide-windows" in root or "jdk" in root:
-        continue
-    for f in files:
-        if f.endswith(".md") and not f.startswith("."):
-            full_p = os.path.join(root, f)
-            rel_p = os.path.relpath(full_p, vault_path)
-            try:
-                mtime = os.path.getmtime(full_p)
-                age_days = (now - mtime) / DAY_SECS
-                # Focus on notes that are at least somewhat seasoned (>1 day)
-                with open(full_p, "r", encoding="utf-8", errors="ignore") as fp:
-                    raw = fp.read()
-                clean_body = re.sub(r"```.*?```", "", raw, flags=re.DOTALL)
-                cur.execute("INSERT INTO vault_flashback VALUES (?, ?, ?, ?)",
-                            (rel_p, f, clean_body[:10000], mtime))
-            except Exception:
-                pass
+clean_query = re.sub(r'[^\w\u4e00-\u9fa5]', '', query)
+if not clean_query:
+    clean_query = query
 
 sql = """
-SELECT path, filename, content, mtime, bm25(vault_flashback, 5.0, 1.0) as rank
-FROM vault_flashback
-WHERE vault_flashback MATCH ?
-ORDER BY rank ASC
-LIMIT 10
+SELECT path, filename, content, mtime, bm25(vault_index, 5.0, 10.0, 2.0, 1.0) AS bm25_rank
+FROM vault_index
+WHERE vault_index MATCH ?
+ORDER BY bm25_rank ASC
+LIMIT 10;
 """
 
 matches = []
-try:
-    cur.execute(sql, (query,))
-    matches = cur.fetchall()
-except Exception:
-    pass
+if len(clean_query) >= 3:
+    try:
+        cur.execute(sql, (f'"{clean_query}"',))
+        matches = cur.fetchall()
+    except Exception:
+        pass
 
 if not matches:
-    # Substring fallback
-    cur.execute("SELECT path, filename, content, mtime, 0.0 FROM vault_flashback")
-    for r in cur.fetchall():
-        if query in r[1] or query in r[2]:
-            matches.append(r)
+    # Substring LIKE fallback
+    sql_like = """
+    SELECT file_meta.path AS path, file_meta.filename AS filename, vault_index.content AS content, file_meta.mtime AS mtime
+    FROM file_meta JOIN vault_index ON file_meta.path = vault_index.path
+    WHERE file_meta.filename LIKE ? OR vault_index.content LIKE ?
+    LIMIT 5;
+    """
+    cur.execute(sql_like, (f"%{clean_query}%", f"%{clean_query}%"))
+    matches = cur.fetchall()
+
+con.close()
 
 print("=" * 70)
 print(f"💡 Brain_Vault 灵感漫步与时空闪回: 【{query}】")
@@ -87,11 +70,14 @@ if not matches:
     print("未在历史笔记中探测到相关的时空暗线。建议继续推进当前思考！")
 else:
     print("系统在你的历史沉淀中挖出了以下关联思想火花：\n")
-    for idx, (p, fn, body, mtime, rank) in enumerate(matches[:3], 1):
+    for idx, r in enumerate(matches[:3], 1):
+        p = r["path"]
+        fn = r["filename"]
+        body = r["content"]
+        mtime = float(r["mtime"])
         t_str = time.strftime("%Y年%m月%d日", time.localtime(mtime))
-        # Find match sentence
+        
         pos = body.find(query)
-        snippet = ""
         if pos != -1:
             start = max(0, pos - 40)
             end = min(len(body), pos + 100)

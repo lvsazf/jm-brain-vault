@@ -2,6 +2,12 @@
 .config.toml
 config.json
 
+# Local SQLite persistent cache & WAL files
+*.db
+*.db-wal
+*.db-shm
+.vault_index.db*
+
 # Python bytecode & cache
 __pycache__/
 *.py[cod]
