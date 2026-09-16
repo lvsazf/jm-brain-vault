@@ -12,7 +12,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path, get_export_settings
+from config_loader import get_vault_path, get_export_settings, get_reveal_command
 
 vault_path = get_vault_path()
 if not os.path.exists(vault_path):
@@ -184,4 +184,6 @@ code {{ background: #F3F4F6; padding: 2px 6px; border-radius: 4px; font-size: 85
     except Exception as e:
         print(f"❌ HTML 导出失败: {e}")
 
+reveal_cmd = get_reveal_command(export_dir)
+print(f"• 定位成果目录: {reveal_cmd}")
 print("=" * 65)

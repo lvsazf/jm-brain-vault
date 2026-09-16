@@ -17,7 +17,7 @@ import yaml
 
 from collections import defaultdict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path, get_user_profile, is_ignored_path, get_digest_settings
+from config_loader import get_vault_path, get_user_profile, is_ignored_path, get_digest_settings, get_obsidian_uri, get_reveal_command
 
 vault_path = get_vault_path()
 if not os.path.exists(vault_path):
@@ -145,8 +145,11 @@ with open(target_path, "w", encoding="utf-8") as fp:
     fp.write(digest_content.strip() + "\n")
 
 rel_p = os.path.relpath(target_path, vault_path)
+obs_uri = get_obsidian_uri(rel_p)
+reveal_cmd = get_reveal_command(target_path)
 print("=" * 65)
 print("✅ 数字大脑月度生长与里程碑简报生成成功！")
 print(f"• 保存路径:  {rel_p}")
-print(f"• 访达高亮:  open -R \"{target_path}\"")
+print(f"• 笔记直达:  {obs_uri}")
+print(f"• 定位文件:  {reveal_cmd}")
 print("=" * 65)

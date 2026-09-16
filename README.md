@@ -139,17 +139,28 @@ python3 <skill-path>/scripts/hybrid_search.py "<query>"
 知识库位于 `~/Documents/Brain_Vault`，编码与整理文档时遵循客观四态有效性校验，检索资料优先运行 `python3 <skill-path>/scripts/hybrid_search.py "<query>"`。
 ```
 
-### 6. 💻 独立终端 CLI 运行 (无需 Agent)
-日常脱离任何 AI，直接在终端执行命令行工具管理知识库：
+### 6. 💻 独立终端 CLI 运行 (Unified Vault CLI)
+安装后系统已自动挂载 `./vault`（并软链接至全局 `~/.local/bin/vault`），日常脱离任何 AI，也可在终端直接管理知识库：
 ```bash
-# 1. 秒级混合语义检索（自动同义词展开 + BM25 排序 + Finder 一键高亮）
-python3 scripts/hybrid_search.py "零售方案"
+# 1. 混合语义检索 (BM25 + 业务四态加权 + Obsidian 客户端一键唤起)
+vault search "零售方案"
+vault search "方案" --ui         # 渲染交互式 Generative UI 卡片
 
-# 2. 一体化全息体检与配置自愈
-python3 scripts/vault_doctor.py
+# 2. 一体化全息体检、双链自愈与健康雷达
+vault doctor
+vault doctor --ui               # 渲染可视化仪表盘
 
-# 3. 将任意 Markdown 导出为精美 Word (.docx) 和排版 HTML
-python3 scripts/export_note.py "~/Documents/Brain_Vault/00_导航总览_Home.md" all
+# 3. 智能网页降噪去广告提纯剪藏
+vault clip "https://mp.weixin.qq.com/s/..."
+
+# 4. 商业级排版导出 Word (.docx) 与 HTML
+vault export "00_导航总览_Home.md" all
+
+# 5. Faster-Whisper 离线语音听写
+vault transcribe "meeting.m4a"
+
+# 6. 查看知识库连接与持久化 SQLite 索引状态
+vault status
 ```
 
 ---

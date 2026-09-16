@@ -37,19 +37,19 @@
 
 ---
 
-## 三、 标准交付输出规范 (Finder Reveal Delivery)
+## 三、 标准交付输出规范 (Obsidian URI & Cross-Platform Delivery)
 
-检索完成后，严格按以下格式输出，让用户不仅“看得到”，而且“能立刻拿走”：
+检索完成后，严格按以下格式输出，让用户不仅“看得到”，而且“能立刻拿走或点开”：
 
 ```markdown
 🔍 **为你找到以下文件：**
 
-* 📄 **[文件简明名称]** (最近更新：YYYY-MM-DD)
+* 📄 **[文件简明名称]** (最近更新：YYYY-MM-DD ｜ 状态：`状态/整体有效`)
   * **一句话提要**：[清晰概述该文档的核心内容与作用]
-  * **完整路径**：`~/Documents/Brain_Vault/path/to/file.ext`
-  * **Mac 访达一键定位**：
+  * **完整路径**：`path/to/file.ext`
+  * **客户端直达**：[在 Obsidian 客户端中一键打开](obsidian://open?vault=VaultName&file=encoded_path)
+  * **终端定位**：
     ```bash
-    open -R "$HOME/Documents/Brain_Vault/path/to/file.ext"
+    [系统定位指令: macOS 用 open -R / Windows 用 explorer /select, / Linux 用 xdg-open]
     ```
-    *(复制并在终端运行，或告诉我“帮我在访达打开”，Mac 访达会立刻弹窗高亮选中该文件，直接鼠标拖走即可！)*
 ```

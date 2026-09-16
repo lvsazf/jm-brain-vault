@@ -9,6 +9,7 @@
 # ------------------------------------------------------------------------------
 [vault]
 root = "~/Documents/Brain_Vault"      # Obsidian 本地仓库根目录
+vault_name = "Brain_Vault"            # Obsidian 软件中注册的 Vault 仓库名称 (用于生成 obsidian://open 深度链接)
 inbox_folder = "00_Inbox"             # 缓冲收件箱目录
 archive_folder = "99_Archive"         # 历史备查归档目录
 ignore_patterns = [                   # 全局巡检、搜索与织网排除目录/文件模式

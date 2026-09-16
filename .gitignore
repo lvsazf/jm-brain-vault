@@ -17,3 +17,7 @@ __pycache__/
 .AppleDouble
 .LSOverride
 Thumbs.db
+
+# Generated UI artifacts
+*.html
+

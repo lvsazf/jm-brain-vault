@@ -12,7 +12,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path, get_transcribe_settings
+from config_loader import get_vault_path, get_transcribe_settings, get_obsidian_uri, get_reveal_command
 
 vault_path = get_vault_path()
 if not os.path.exists(vault_path):
@@ -99,10 +99,13 @@ confidentiality: 内部/限制
         fp.write(final_content)
         
     rel_p = os.path.relpath(target_path, vault_path)
+    obs_uri = get_obsidian_uri(rel_p)
+    reveal_cmd = get_reveal_command(target_path)
     print("=" * 65)
     print("✅ 语音转录与提纯笔记生成成功！")
     print(f"• 保存路径:  {rel_p}")
-    print(f"• 访达高亮:  open -R \"{target_path}\"")
+    print(f"• 笔记直达:  {obs_uri}")
+    print(f"• 定位文件:  {reveal_cmd}")
     print("=" * 65)
 
 except Exception as e:

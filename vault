@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# JM Brain Vault - Executable CLI Wrapper
+# ==============================================================================
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec python3 "$DIR/scripts/vault.py" "$@"

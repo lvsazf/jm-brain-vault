@@ -14,7 +14,7 @@ import urllib.request
 from html.parser import HTMLParser
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path, get_web_clip_settings
+from config_loader import get_vault_path, get_web_clip_settings, get_obsidian_uri, get_reveal_command
 
 vault_path = get_vault_path()
 if not os.path.exists(vault_path):
@@ -114,11 +114,14 @@ confidentiality: 公开
         fp.write(yaml_header + body_md + "\n")
         
     rel_p = os.path.relpath(target_path, vault_path)
+    obs_uri = get_obsidian_uri(rel_p)
+    reveal_cmd = get_reveal_command(target_path)
     print("=" * 65)
     print("✅ 网页剪藏与降噪提纯入库成功！")
     print(f"• 保存路径:  {rel_p}")
     print(f"• 标题提炼:  {title}")
-    print(f"• 访达高亮:  open -R \"{target_path}\"")
+    print(f"• 笔记直达:  {obs_uri}")
+    print(f"• 定位文件:  {reveal_cmd}")
     print("=" * 65)
 
 except Exception as e:

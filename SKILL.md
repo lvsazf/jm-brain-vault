@@ -1,6 +1,6 @@
 ---
 name: jm-brain-vault
-description: Use when managing, ingesting, archiving, searching, or maintaining files and notes in the user's Obsidian knowledge vault (~/Documents/Brain_Vault). Enforces autonomous modality routing, dual-mode intake (direct file zero-tampering vs content synthesis), objective validity verification (fully valid vs partially valid vs superseded), dynamic monthly metabolism, visual JSON canvas generation, native Obsidian Bases (.base) management, defuddle web extraction, and smart fuzzy retrieval with Mac Finder reveal. Composes with official obsidian-markdown, json-canvas, obsidian-bases, defuddle, and obsidian-cli skills.
+description: Manage, search, ingest, clip, transcribe, export, and maintain the user's Obsidian knowledge base (Brain Vault). Triggers on requests related to knowledge management, note retrieval ("查资料", "找笔记", "搜索知识库"), health diagnostics ("知识库体检", "运行doctor"), web clipping ("网页剪藏", "保存文章"), audio voice transcription ("录音转录", "会议录音整理"), business document export ("导出Word/HTML", "排版导出"), link integrity and validity verification ("有效性审计", "知识更新"), monthly pulse and digest ("月度大脑脉搏", "知识资产简报"), or any operation on notes, canvases, or bases in the user's vault.
 ---
 
 # 🧠 JM Brain Vault 知识中枢智能管家 Skill
@@ -104,10 +104,9 @@ AI 绝不主观猜测现实中业务处于所谓的“进行中”，而是**严
 1. **同义词与意图展开**：自动映射业务词汇（如“烟酒店” ➔ “即时零售”、“传统门店数字化”）；
 2. **全库正文与标签穿透**：秒级穿透全库正文与 YAML 标签；
 3. **活跃度加权优先**：同类候选文件中，优先推荐修改时间最近且处于 `状态/整体有效` 的最新版本；
-4. **Mac Finder 一键高亮弹窗指令**：
-   ```bash
-   open -R "$HOME/Documents/Brain_Vault/path/to/file.ext"
-   ```
+4. **Obsidian 原生 URI 直达与跨平台文件管理器定位**：
+   * 客户端一键唤起：`[在 Obsidian 中打开笔记](obsidian://open?vault=Brain_Vault&file=path/to/file.md)`
+   * 跨平台终端文件定位：macOS `open -R "<path>"` ｜ Windows `explorer.exe /select,"<path>"` ｜ Linux `xdg-open "<dir>"`
 
 ---
 
@@ -121,7 +120,8 @@ AI 绝不主观猜测现实中业务处于所谓的“进行中”，而是**严
 - **模态增强**：[伴生 .canvas 视觉白板 ｜ 伴生 .base 原生数据库 ｜ 纯净 Markdown]
 - **新旧演进**：[全量取代 [[旧版]] ｜ 增量补充 [[母本]] ｜ 跨业务协同]
 - **看板联动**：已挂载至对应作战看板
-- **访达直达**：`open -R "[绝对路径]"`
+- **客户端直达**：[在 Obsidian 客户端中一键打开](obsidian://open?vault=[Vault名]&file=[URL编码路径])
+- **系统文件定位**：`[系统文件管理器定位命令]`
 ```
 ---
 
@@ -156,4 +156,57 @@ AI 绝不主观猜测现实中业务处于所谓的“进行中”，而是**严
 - **`.config.toml`**（本地私有配置）：以 `.` 开头存放于本技能根目录，包含用户真实的知识库路径、个人称谓、商业客户专属同义词与自动双链字典。采用 TOML 语法，支持中文注释（`#`），**被 `.gitignore` 保护，永不上传**。
 - **`.config.template.toml`**（开源公共模板）：包含完整的 TOML 配置结构、字段注释与通用示例（如电商、零售、战略定位等），供开源克隆用户参考。
 - **动态加载器**：所有底层 Python 脚本统一通过 `scripts/config_loader.py` 动态调用原生 `tomllib` 加载。若未检测到 `.config.toml`，自动安全回退至 `.config.template.toml`。
+
+---
+
+## 🚀 8. 统一门面与全局命令行工具 (Unified CLI Facade)
+
+无论是终端开发者还是在各类 AI Agent 交互中，均可直接使用统一人性化门面 `./vault`（或已安装至 `~/.local/bin/vault` 的全局命令）：
+
+```bash
+# 检索与状态
+vault search "烟酒零售"          # 混合语义检索 + Obsidian 客户端一键直达
+vault search "零售" --ui         # 渲染可交互 Generative UI 卡片
+vault status                    # 查看当前连接知识库、有效性分布与索引健康度
+
+# 诊断与体检
+vault doctor                    # 全库一体化生命体征健康审计
+vault doctor --ui               # 渲染可视化健康体检雷达仪表盘
+
+# 内容输入与转换
+vault clip "https://..."        # 网页智能降噪纯净剪藏
+vault export "01_思考/复盘.md" docx # 商业级排版 Word/HTML 导出
+vault transcribe "meeting.m4a"  # Faster-Whisper 本地离线高精度听写
+
+# 图谱治理与生命周期
+vault pulse                     # 30天活跃热力感知与休眠沉淀
+vault weave --auto              # 孤岛笔记概念提及智能双向织网
+vault digest                    # 生成月度数字大脑生长与资产简报
+vault graph                     # 知识图谱拓扑与断层盲区诊断
+vault verify --fix              # 客观知识四态有效性全库校准
+vault sync                      # 配置自动同步与版本自愈
+```
+
+---
+
+## 🎨 9. 可视化 Generative UI 交互体验 (<agent-embed>)
+
+在 Google Antigravity 中，AI 可自主生成并内嵌原生响应式 UI 卡片：
+- **搜索卡片**：展示匹配度进度条、客观有效性标签、高亮摘要，以及 `🟣 1-Click Open in Obsidian` 客户端一键直达。
+- **健康雷达**：可视化展示 6 大生命体征自检清单、知识点总数、索引库容量与 Vault 运行指标。
+
+---
+
+## ⏰ 10. 定时自动化任务推荐 (/schedule Automation)
+
+用户可随时在 Antigravity 聊天窗口中键入 `/schedule`，设定自动化后台周期任务保持知识中枢常青：
+
+- **每月初知识大脑脉搏与生长简报**：
+  > `/schedule` 每月 1 号早上 9:00：`运行 vault doctor 与 vault digest，生成本月知识中枢健康审计与数字大脑生长简报。`
+  > *(Cron: `0 9 1 * *`)*
+
+- **每周生命周期热力感知与休眠降级**：
+  > `/schedule` 每周日晚 22:00：`运行 vault pulse，感知 30 天笔记活跃热力，自动识别并沉淀休眠档案。`
+  > *(Cron: `0 22 * * 0`)*
+
 

@@ -39,17 +39,47 @@ fi
 # 3. Setup Configuration (.config.toml)
 echo -e "\n${YELLOW}[3/5] 初始化本地配置文件...${NC}"
 if [ ! -f ".config.toml" ]; then
-    if [ -f ".config.template.toml" ]; then
+    if [ -t 0 ]; then
+        echo -e "  ${BLUE}检测到交互式终端环境，启动快速配置向导：${NC}"
+        read -r -p "  ? 请输入知识库根目录路径 (Obsidian Vault Path) [默认: ~/Documents/Brain_Vault]: " USER_VAULT_PATH
+        USER_VAULT_PATH=${USER_VAULT_PATH:-"~/Documents/Brain_Vault"}
+        
+        # Expand ~ if provided for default name extraction
+        EXPANDED_PATH="${USER_VAULT_PATH/#\~/$HOME}"
+        DEFAULT_VAULT_NAME=$(basename "$EXPANDED_PATH")
+        
+        read -r -p "  ? 请输入 Obsidian 库名称 (Vault Name) [默认: ${DEFAULT_VAULT_NAME}]: " USER_VAULT_NAME
+        USER_VAULT_NAME=${USER_VAULT_NAME:-"$DEFAULT_VAULT_NAME"}
+        
+        DEFAULT_OWNER="${USER:-Admin}"
+        read -r -p "  ? 请输入知识库主人姓名/昵称 (Owner Name) [默认: ${DEFAULT_OWNER}]: " USER_OWNER_NAME
+        USER_OWNER_NAME=${USER_OWNER_NAME:-"$DEFAULT_OWNER"}
+        
         cp .config.template.toml .config.toml
-        echo -e "  • ${GREEN}已基于模板创建 .config.toml${NC}"
-        echo -e "  • 提示: 请记得稍后按需编辑 .config.toml 配置你的个人知识库路径与专属同义词。"
+        python3 -c "
+import sys
+with open('.config.template.toml', 'r', encoding='utf-8') as f:
+    content = f.read()
+content = content.replace('root = \"~/Documents/Brain_Vault\"', f'root = \"{sys.argv[1]}\"')
+content = content.replace('vault_name = \"Brain_Vault\"', f'vault_name = \"{sys.argv[2]}\"')
+content = content.replace('owner_name = \"Admin\"', f'owner_name = \"{sys.argv[3]}\"')
+with open('.config.toml', 'w', encoding='utf-8') as f:
+    f.write(content)
+" "$USER_VAULT_PATH" "$USER_VAULT_NAME" "$USER_OWNER_NAME"
+        echo -e "  • ${GREEN}已根据您的输入生成专属 .config.toml！${NC}"
+    else
+        if [ -f ".config.template.toml" ]; then
+            cp .config.template.toml .config.toml
+            echo -e "  • ${GREEN}已基于模板自动创建 .config.toml${NC}"
+            echo -e "  • 提示: 请按需编辑 .config.toml 配置你的个人知识库路径与专属同义词。"
+        fi
     fi
 else
     echo -e "  • ${GREEN}.config.toml 已存在，保留现有配置${NC}"
 fi
 
 # 4. Multi-Agent Ecosystem Auto-Discovery & Link
-echo -e "\n${YELLOW}[4/5] 适配主 AI Agent 环境...${NC}"
+echo -e "\n${YELLOW}[4/5] 适配主 AI Agent 环境与全局 CLI...${NC}"
 
 # 4.1 Google Antigravity / Gemini CLI
 GEMINI_SKILLS_DIR="$HOME/.gemini/config/skills"
@@ -75,6 +105,17 @@ echo -e "  • ${GREEN}Claude Code 支持${NC}: 运行 \`claude\` 并在你的�
 
 # 4.5 Cursor / Windsurf Rules
 echo -e "  • ${GREEN}Cursor / Windsurf 支持${NC}: 可将本库规则引用至 \`.cursorrules\` 或 \`.windsurfrules\`"
+
+# 4.6 Standalone CLI Symlink (~/.local/bin/vault)
+mkdir -p "$HOME/.local/bin"
+if [ -f "$SCRIPT_DIR/vault" ]; then
+    chmod +x "$SCRIPT_DIR/vault"
+    ln -sf "$SCRIPT_DIR/vault" "$HOME/.local/bin/vault"
+    echo -e "  • ${GREEN}已挂载全局命令行命令: ~/.local/bin/vault${NC}"
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        echo -e "    ${YELLOW}提示: 请确保 ~/.local/bin 已加入您的 PATH 环境变量${NC}"
+    fi
+fi
 
 # 5. Pre-warm Persistent SQLite Database (.vault_index.db)
 echo -e "\n${YELLOW}[5/5] 初始化并预热持久化 SQLite 索引 (.vault_index.db)...${NC}"

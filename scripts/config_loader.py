@@ -7,8 +7,10 @@ located at the skill root directory.
 """
 
 import os
+import sys
 from pathlib import Path
 from typing import Any, Dict
+from urllib.parse import quote
 
 try:
     import tomllib
@@ -54,6 +56,7 @@ def load_config(force_reload: bool = False) -> Dict[str, Any]:
     defaults = {
         "vault": {
             "root": "~/Documents/Brain_Vault",
+            "vault_name": "Brain_Vault",
             "inbox_folder": "00_Inbox",
             "archive_folder": "99_Archive",
             "ignore_patterns": [
@@ -119,6 +122,32 @@ def get_vault_path() -> str:
     cfg = load_config()
     raw_root = cfg.get("vault", {}).get("root", "~/Documents/Brain_Vault")
     return os.path.expanduser(raw_root)
+
+
+def get_vault_name() -> str:
+    """Return the name of the Obsidian Vault as registered in the Obsidian app."""
+    cfg = load_config()
+    v_name = cfg.get("vault", {}).get("vault_name")
+    if v_name:
+        return v_name
+    return os.path.basename(get_vault_path())
+
+
+def get_obsidian_uri(rel_path: str) -> str:
+    """Return a standard obsidian://open deep link for the specified relative note path."""
+    vault_name = get_vault_name()
+    clean_p = rel_path.replace("\\", "/").strip()
+    return f"obsidian://open?vault={quote(vault_name)}&file={quote(clean_p)}"
+
+
+def get_reveal_command(abs_path: str) -> str:
+    """Return cross-platform reveal command for locating file in OS file manager."""
+    if sys.platform == "darwin":
+        return f'open -R "{abs_path}"'
+    elif sys.platform == "win32":
+        return f'explorer.exe /select,"{abs_path}"'
+    else:
+        return f'xdg-open "{os.path.dirname(abs_path)}"'
 
 
 def get_ignored_patterns() -> list:

@@ -15,7 +15,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path, get_synonyms
+from config_loader import get_vault_path, get_synonyms, get_obsidian_uri, get_reveal_command
 from vault_db import sync_index, search_vault
 
 vault_path = get_vault_path()
@@ -59,12 +59,14 @@ else:
         mt_str = time.strftime("%Y-%m-%d", time.localtime(res["mtime"]))
         abs_p = os.path.join(vault_path, p)
         snippet = res.get("snippet", "").replace("\n", " ").strip()
+        obs_uri = get_obsidian_uri(p)
+        reveal_cmd = get_reveal_command(abs_p)
         
         print(f"[{idx}] 📄 {fn}")
-        print(f"    • 路径:  {p}")
         print(f"    • 状态:  {st} | 更新: {mt_str}")
         print(f"    • 摘要:  ...{snippet}...")
-        print(f"    • 访达:  open -R \"{abs_p}\"")
+        print(f"    • 直达:  {obs_uri}")
+        print(f"    • 定位:  {reveal_cmd}")
         print()
 
 print("=" * 65)
