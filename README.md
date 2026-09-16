@@ -4,12 +4,28 @@
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/Python-3.11+-brightgreen.svg" alt="Python Version">
   <img src="https://img.shields.io/badge/Obsidian-Native%20Bases%20%26%20Canvas-purple.svg" alt="Obsidian">
-  <img src="https://img.shields.io/badge/AI%20Agent-Antigravity%20Skill-orange.svg" alt="Antigravity">
+  <img src="https://img.shields.io/badge/Multi--Agent-Antigravity%20|%20Claude%20Code%20|%20Cursor%20|%20CLI-orange.svg" alt="Multi-Agent Supported">
   <img src="https://img.shields.io/badge/Architecture-Zero--Leak%20Config-success.svg" alt="Architecture">
 </p>
 
 > **用户零心智负担自然对话 ｜ AI 底层全自动智能决策路由与多模态编排**  
-> **面向 Obsidian 工业级规范的数字大脑治理中枢与生命周期调度器**
+> **面向 Obsidian 工业级规范的跨平台多智能体（Multi-Agent）数字大脑治理中枢与生命周期调度器**
+
+---
+
+## 🌐 全主流 AI Agent 生态支持 (Multi-Agent Compatibility)
+
+`JM Brain Vault` 采用 **Agent-Agnostic（智能体中立）** 架构设计。底层由**工业级规范提示词（SKILL.md / references）**、**纯本地 Python 算法引擎（scripts/）** 以及 **TOML 隐藏配置** 组成。
+
+它原生适配目前市面所有具备终端执行或提示词挂载能力的主流 AI Coding Agent：
+
+| AI Agent 载体 | 适配方式 | 用户体验 |
+| :--- | :--- | :--- |
+| 🪐 **Google Antigravity / Gemini CLI** | 原生 Skill (`~/.gemini/config/skills/`) | 对话框直接发需求，AI 自主多模态编排调度 |
+| 🟣 **Claude Code (Anthropic)** | 通过 `CLAUDE.md` 或终端直接调用 | 强大的代码理解能力配合本地混合搜索与体检 |
+| ⚡ **Cursor / Windsurf** | 引入 `.cursorrules` / `.windsurfrules` | 在 IDE 边写笔记/代码边秒级呼出图谱与导出 |
+| 🤖 **Hermes Agent / OpenHands / Bolt** | 作为底层知识管理中台工具库挂载 | 具备记忆自愈与知识有效性判定的 Agent 外脑 |
+| 💻 **独立终端 (Standalone Python CLI)** | 直接运行 `python3 scripts/vault_doctor.py` | 即使脱离任何 AI，人类也能一键搜索、体检与导出 |
 
 ---
 
@@ -56,21 +72,74 @@
 
 ---
 
-## 🚀 快速开始 (Quickstart)
+## 🚀 快速安装与多 Agent 配置 (Quickstart & Setup)
 
-### 1. 克隆或复制到 Antigravity Skills 目录
+### 方式一：一键自动安装（推荐）
+
+通过终端执行一键安装程序（自动检测环境、安装依赖、初始化配置并挂载智能体）：
+```bash
+git clone https://github.com/lvsazf/jm-brain-vault.git
+cd jm-brain-vault
+./install.sh
+```
+
+---
+
+### 方式二：主流 AI Agent 专属接入指引
+
+#### 1. 🪐 Google Antigravity / Gemini CLI
+克隆至 Antigravity 技能库目录即可开箱即用：
 ```bash
 git clone https://github.com/lvsazf/jm-brain-vault.git ~/.gemini/config/skills/jm-brain-vault
-```
-
-### 2. 初始化本地私有配置
-复制模板生成本地以 `.` 开头的隐藏配置文件：
-```bash
 cd ~/.gemini/config/skills/jm-brain-vault
 cp .config.template.toml .config.toml
+pip install -r requirements.txt
+```
+> **体验方式**：在 Antigravity 对话框中自然交互（如 *“帮我把这份行业调研整理进企业AI库”* 或 *“找一下关于门店数字化的最新方案”*）。
+
+#### 2. 🟣 Claude Code (Anthropic)
+在你的项目或工作区根目录下创建或在 `CLAUDE.md` 中添加以下指引：
+```markdown
+## Brain Vault 知识中枢调用指令
+当需要检索历史资料、检查知识库健康度或导出文档时，可直接在终端执行：
+- 混合语义搜索: `python3 <skill-path>/scripts/hybrid_search.py "<关键词>"`
+- 全息健康体检: `python3 <skill-path>/scripts/vault_doctor.py`
+- 商业排版导出: `python3 <skill-path>/scripts/export_note.py "<file.md>" all`
 ```
 
-编辑 `.config.toml` 配置你的 Obsidian 路径与专属偏好：
+#### 3. ⚡ Cursor / Windsurf
+在工作区根目录下的 `.cursorrules` 或 `.windsurfrules` 中添加：
+```markdown
+# Brain Vault Rules
+知识库位于 `~/Documents/Brain_Vault`，遵循以下准则：
+1. 文件直传 100% 物理零篡改；
+2. 知识状态严格按【状态/整体有效】【状态/部分有效】【状态/失效归档】客观标记；
+3. 需要查资料时调用 `python3 <skill-path>/scripts/hybrid_search.py "<query>"`。
+```
+
+#### 4. 💻 独立终端 CLI 用户
+日常无需启动任何 AI Agent，随时在命令行直接运行命令管理知识库：
+```bash
+# 1. 混合语义检索（自动同义词展开 + BM25 排序 + Finder 一键高亮）
+python3 scripts/hybrid_search.py "零售方案"
+
+# 2. 一键全息体检与配置自愈
+python3 scripts/vault_doctor.py
+
+# 3. 将任意 Markdown 导出为精美 Word (.docx) 和排版 HTML
+python3 scripts/export_note.py "~/Documents/Brain_Vault/00_导航总览_Home.md" all
+```
+
+---
+
+## ⚙️ 配置文件说明 (.config.toml)
+
+本架构采用 **TOML** 作为配置格式，具备三大核心优势：
+- **原生支持注释 (`#`)**：随时随地为项目和客户添加中文备注；
+- **原生标准库解析**：Python 3.11+ 原生内置 `tomllib`，零外部依赖，极速读取；
+- **隐藏文件规范 (`.config.toml`)**：以 `.` 开头，默认在访达与 Obsidian 文件列表隐藏，清爽干净；已写入 `.gitignore`，杜绝私有数据误提交。
+
+编辑 `.config.toml` 配置示例：
 ```toml
 [vault]
 root = "~/Documents/Brain_Vault"   # 你的 Obsidian 仓库本地路径
@@ -87,25 +156,6 @@ brain_title = "商业数字大脑"
 # 自动双链实体映射
 "商业定位" = "[[02_Enterprise_AI/Business_Strategy/定位方法论.md|商业定位]]"
 ```
-
-### 3. 安装依赖 (Python 3.11+)
-```bash
-pip install -r requirements.txt
-```
-
-### 4. 运行全息体检验证
-```bash
-python3 scripts/vault_doctor.py
-```
-
----
-
-## ⚙️ 配置文件说明 (.config.toml)
-
-本架构采用 **TOML** 作为配置格式，具备三大核心优势：
-- **原生支持注释 (`#`)**：随时随地为项目和客户添加中文备注；
-- **原生标准库解析**：Python 3.11+ 原生内置 `tomllib`，零外部依赖，极速读取；
-- **隐藏文件规范 (`.config.toml`)**：以 `.` 开头，默认在访达与 Obsidian 文件列表隐藏，清爽干净；已写入 `.gitignore`，杜绝私有数据误提交。
 
 ---
 
