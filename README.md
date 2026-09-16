@@ -13,11 +13,11 @@
 
 ---
 
-## 🌐 全主流 AI Agent 生态支持 (Multi-Agent Compatibility)
+## 🌐 多 AI Agent 生态支持 (Multi-Agent Compatibility)
 
 `JM Brain Vault` 采用 **Agent-Agnostic（智能体中立）** 架构设计。底层由**工业级规范提示词（SKILL.md / references）**、**纯本地 Python 算法引擎（scripts/）** 以及 **TOML 隐藏配置** 组成。
 
-它原生适配目前市面所有主流 AI Agent 框架与开发环境：
+它原生适配目前各类核心 AI Agent 框架与开发环境：
 
 | AI Agent 载体 | 适配方式 | 交互与应用体验 |
 | :--- | :--- | :--- |
@@ -87,7 +87,7 @@ cd jm-brain-vault
 
 ---
 
-## 🔌 主流 AI Agent 接入配置 (Agent Integration Guides)
+## 🔌 主AI Agent 接入配置 (Agent Integration Guides)
 
 安装完成后，根据你的主力 AI 工具，选择对应的配置方式：
 

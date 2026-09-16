@@ -49,7 +49,7 @@ else
 fi
 
 # 4. Multi-Agent Ecosystem Auto-Discovery & Link
-echo -e "\n${YELLOW}[4/4] 适配主流 AI Agent 环境...${NC}"
+echo -e "\n${YELLOW}[4/4] 适配主 AI Agent 环境...${NC}"
 
 # 4.1 Google Antigravity / Gemini CLI
 GEMINI_SKILLS_DIR="$HOME/.gemini/config/skills"
