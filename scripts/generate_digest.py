@@ -15,14 +15,23 @@ import time
 import datetime
 import yaml
 
+from collections import defaultdict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path, get_user_profile
+from config_loader import get_vault_path, get_user_profile, is_ignored_path, get_digest_settings
 
 vault_path = get_vault_path()
+if not os.path.exists(vault_path):
+    print(f"⚠️ [generate_digest] 知识库目录不存在: {vault_path}")
+    print("   请在 .config.toml 中配置正确的 [vault].root 路径。")
+    sys.exit(0)
+
 user_profile = get_user_profile()
 owner_name = user_profile.get("owner_name", "知识库所有者")
 brain_title = user_profile.get("brain_title", "数字大脑")
-digest_dir = os.path.join(vault_path, "04_Knowledge_Archive", "Digests")
+
+digest_settings = get_digest_settings()
+digest_sub = digest_settings.get("output_dir", "Digests")
+digest_dir = os.path.join(vault_path, digest_sub) if not os.path.isabs(digest_sub) else digest_sub
 os.makedirs(digest_dir, exist_ok=True)
 
 now = time.time()
@@ -33,10 +42,11 @@ date_str = time.strftime("%Y-%m-%d")
 
 active_notes = []
 status_counts = {"状态/整体有效": 0, "状态/部分有效": 0, "状态/失效归档": 0, "状态/客观事实": 0, "其他": 0}
-domain_counts = {"01_AI_Video_Studio": 0, "02_Enterprise_AI": 0, "03_Personal_Vault": 0, "04_Knowledge_Archive": 0, "看板总控": 0}
+domain_counts = defaultdict(int)
+domain_recent_30d = defaultdict(int)
 
 for root, dirs, files in os.walk(vault_path):
-    if ".obsidian" in root or "newdao-ide-windows" in root or "jdk" in root:
+    if is_ignored_path(root):
         continue
     for f in files:
         if f.endswith(".md") and not f.startswith("."):
@@ -55,12 +65,11 @@ for root, dirs, files in os.walk(vault_path):
                     status = m_st.group(1).strip()
                 status_counts[status] = status_counts.get(status, 0) + 1
                 
-                top_dir = rel_p.split("/")[0]
-                if top_dir.endswith(".md"):
-                    top_dir = "看板总控"
-                domain_counts[top_dir] = domain_counts.get(top_dir, 0) + 1
+                top_dir = rel_p.split("/")[0] if "/" in rel_p else "看板总控"
+                domain_counts[top_dir] += 1
                 
                 if age_days <= 30:
+                    domain_recent_30d[top_dir] += 1
                     active_notes.append((mtime, rel_p, status))
             except Exception:
                 pass
@@ -75,6 +84,13 @@ for mt, p, st in active_notes[:12]:
     t_str = time.strftime("%Y-%m-%d", time.localtime(mt))
     fn = os.path.basename(p)
     top_list_md.append(f"* **[{t_str}]** [[{p}|{fn}]] `({st})`")
+
+domain_rows = []
+for d_name, d_cnt in sorted(domain_counts.items(), key=lambda x: x[1], reverse=True)[:8]:
+    r_cnt = domain_recent_30d.get(d_name, 0)
+    pace_str = "高频攻坚" if r_cnt >= 5 else ("持续推进" if r_cnt > 0 else "稳健基底")
+    domain_rows.append(f"| 📁 **{d_name}** | {d_cnt} 篇 | {r_cnt} 篇近期更新 ({pace_str}) |")
+domain_table_md = "\n".join(domain_rows) if domain_rows else "| (暂无业务板块分类) | 0 | - |"
 
 digest_content = f"""---
 category: 报告/生长简报
@@ -99,10 +115,7 @@ confidentiality: 内部/机密
 
 | 业务板块 | 总笔记篇数 | 30天内活跃更新 |
 | :--- | :---: | :---: |
-| 🎬 **01 AI视频工坊 (AI Video Studio)** | {domain_counts.get("01_AI_Video_Studio", 0)} | 高频攻坚 |
-| 💼 **02 企业AI战略 (Enterprise AI)** | {domain_counts.get("02_Enterprise_AI", 0)} | 持续交付 |
-| 💳 **03 个人资产财务 (Personal Vault)** | {domain_counts.get("03_Personal_Vault", 0)} | 稳健基座 |
-| 🏛️ **04 底层知识沉淀 (Knowledge Archive)** | {domain_counts.get("04_Knowledge_Archive", 0)} | 深度留底 |
+{domain_table_md}
 
 ---
 

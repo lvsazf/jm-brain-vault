@@ -15,12 +15,18 @@ import sys
 import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path
+from config_loader import get_vault_path, is_ignored_path, load_config
 
 vault_path = get_vault_path()
-do_fix = "--fix" in sys.argv
+if not os.path.exists(vault_path):
+    print(f"⚠️ [verify_validity] 知识库目录不存在: {vault_path}")
+    print("   请在 .config.toml 中配置正确的 [vault].root 路径。")
+    sys.exit(0)
 
-pending_markers = [
+do_fix = "--fix" in sys.argv
+cfg = load_config()
+
+default_markers = [
     "【待确认】",
     "【待核验】",
     "【待核验数据】",
@@ -30,6 +36,7 @@ pending_markers = [
     "待补充",
     "待确定"
 ]
+pending_markers = cfg.get("validity", {}).get("pending_markers", default_markers)
 
 results = {
     "整体有效": [],
@@ -43,7 +50,7 @@ mismatches = []
 total_md = 0
 
 for root, dirs, files in os.walk(vault_path):
-    if ".obsidian" in root or "newdao-ide-windows" in root or "jdk" in root:
+    if is_ignored_path(root):
         continue
     for f in files:
         if f.endswith(".md") and not f.startswith("."):

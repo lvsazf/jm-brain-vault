@@ -19,6 +19,11 @@ from config_loader import get_vault_path, get_synonyms
 from vault_db import sync_index, search_vault
 
 vault_path = get_vault_path()
+if not os.path.exists(vault_path):
+    print(f"⚠️ [hybrid_search] 知识库目录不存在: {vault_path}")
+    print("   请在 .config.toml 中配置正确的 [vault].root 路径。")
+    sys.exit(0)
+
 query = " ".join(sys.argv[1:]).strip()
 
 if not query:

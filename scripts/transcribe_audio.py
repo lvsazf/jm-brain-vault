@@ -12,10 +12,17 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path
+from config_loader import get_vault_path, get_transcribe_settings
 
 vault_path = get_vault_path()
-output_dir = os.path.join(vault_path, "01_AI_Video_Studio", "Own_Projects", "Raw_Footage", "Voice_Notes")
+if not os.path.exists(vault_path):
+    print(f"⚠️ [transcribe_audio] 知识库目录不存在: {vault_path}")
+    print("   请在 .config.toml 中配置正确的 [vault].root 路径。")
+    sys.exit(0)
+
+tr_cfg = get_transcribe_settings()
+tr_sub = tr_cfg.get("output_dir", "Voice_Notes")
+output_dir = os.path.join(vault_path, tr_sub) if not os.path.isabs(tr_sub) else tr_sub
 os.makedirs(output_dir, exist_ok=True)
 
 audio_path = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -23,7 +30,8 @@ if not audio_path or not os.path.exists(audio_path):
     print("用法: python3 transcribe_audio.py <音频文件路径> [模型规格: tiny|base|small]")
     sys.exit(0)
 
-model_size = sys.argv[2] if len(sys.argv) > 2 else "base"
+default_model = tr_cfg.get("model_size", "base")
+model_size = sys.argv[2] if len(sys.argv) > 2 else default_model
 print(f"🎙️ 正在启动 Whisper 语音听写引擎 (模型: {model_size})...")
 print(f"📁 音频源文件: {audio_path}")
 
@@ -54,9 +62,10 @@ try:
     target_path = os.path.join(output_dir, f"{safe_title}_语音整理.md")
     
     now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+    default_domain = tr_cfg.get("default_domain", "资产/录音速记")
     yaml_header = f"""---
 category: 资产/录音转录
-domain: 视频/口播素材
+domain: {default_domain}
 status: 状态/整体有效
 source_audio: "{audio_path}"
 duration_seconds: {info.duration:.1f}

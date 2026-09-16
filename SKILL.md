@@ -45,6 +45,8 @@ description: Use when managing, ingesting, archiving, searching, or maintaining 
 
 ## 1. 核心工作模式与双输入分流
 
+> 核心规约：[双输入模式与存盘规约](./references/intake-modes.md)
+
 ### 模式一：【文件直传模式】（用户直接发来物理文件）
 * **第一红线**：**正文 100% 绝对零篡改，纯物理级安全存盘**。
 * **执行工序**：
@@ -70,6 +72,8 @@ description: Use when managing, ingesting, archiving, searching, or maintaining 
 
 ## 2. 知识有效性状态与客观校验规则 (取代主观“进行中”)
 
+> 核心规约：[客观四态研判与演进规约](./references/evolution-states.md)
+
 AI 绝不主观猜测现实中业务处于所谓的“进行中”，而是**严格基于客观规则校验文件的知识有效性状态**：
 
 | 有效性状态 | 判定特征与规则 | 裁决动作 |
@@ -84,15 +88,17 @@ AI 绝不主观猜测现实中业务处于所谓的“进行中”，而是**严
 ## 3. 动态代谢与月度巡检机制 (看板不写死)
 
 > **核心哲学**：**看板不是死板分类表，而是“当下活跃战场的动态聚光灯”！**  
-> 主航道与看板内容由全库文件的实际修改时间戳（`mtime`）客观驱动，每月进行一次生命周期新老代谢。
+> 主航道与看板内容由全库文件的实际修改时间戳（`mtime`）客观驱动，每月进行一次生命周期新老代谢。[详见动态代谢规约](./references/monthly-pulse.md)
 
-* 运行内置扫描脚本：`python3 ~/.gemini/config/skills/jm-brain-vault/scripts/scan_pulse.py`
-* 运行有效性校验脚本：`python3 ~/.gemini/config/skills/jm-brain-vault/scripts/verify_validity.py`
-* 运行隐式提及扫描脚本：`python3 ~/.gemini/config/skills/jm-brain-vault/scripts/scan_unlinked.py`
+* 运行内置扫描脚本：`python3 scripts/scan_pulse.py`
+* 运行有效性校验脚本：`python3 scripts/verify_validity.py`
+* 运行隐式提及扫描脚本：`python3 scripts/scan_unlinked.py`
 
 ---
 
 ## 4. 智能模糊检索与语义召回协议
+
+> 核心规约：[智能模糊检索与交付规约](./references/search-protocol.md)
 
 当用户提出模糊查文件需求（关键字、零散记忆、想法描述）时：
 1. **同义词与意图展开**：自动映射业务词汇（如“烟酒店” ➔ “即时零售”、“传统门店数字化”）；
@@ -123,20 +129,23 @@ AI 绝不主观猜测现实中业务处于所谓的“进行中”，而是**严
 
 所有工具均支持静默调用，无需用户记忆命令：
 
-| 脚本工具 | 核心功能与技术底座 | 触发场景 |
+| 脚本工具 | 核心功能与技术底座 | 典型调用命令与触发场景 |
 | :--- | :--- | :--- |
-| `hybrid_search.py` | SQLite Trigram FTS5 + BM25 混合语义检索 | 用户提出模糊查文件、找资料时秒级调用 |
-| `transcribe_audio.py` | Faster-Whisper 本地离线高精度听写提纯 | 用户发来录音文件（.m4a/.mp3/.wav）时调用 |
-| `clip_url.py` | 工业级网页/公众号降噪去广告提纯管道 | 用户发来文章/微信 URL 链接时调用 |
-| `export_note.py` | 商业级 Word (.docx) / 打印排版 HTML 导出 | 用户要求将笔记发给客户或导出时调用 |
-| `graph_diagnosis.py` | 图网络拓扑、超级中枢与商业断层算法诊断 | 用户询问知识库盲区或宏观结构时调用 |
-| `smart_flashback.py` | 历史笔记时空闪回与跨周期灵感漫步 | 用户思考新业务时自动联想历史沉淀 |
-| `generate_digest.py` | 月度/周期性数字大脑生长与里程碑简报 | 月末复盘或用户要求查看大脑成长时调用 |
-| `weave_links.py` | 知识图谱孤岛提及自动探测与双向编织 | 定期图谱自愈、织密上下文网络时调用 |
-| `verify_validity.py` | 客观知识有效性规则裁决审计 (整体/部分/失效) | 入库校验与全库状态客观校准时调用 |
-| `scan_pulse.py` | 30天动态生命周期与 mtime 活跃热力感知 | 保持作战看板动态更迭时调用 |
-| `verify_links.py` | 全库双向链接零死链与 YAML 语法合规体检 | 日常维护与健康巡检时调用 |
-| `vault_doctor.py` | 一体化全息体检医生 (包含链接/有效性/热力/织网) | 全面系统体检与交付自愈时调用 |
+| `hybrid_search.py` | SQLite Trigram FTS5 + BM25 混合语义检索 | `python3 scripts/hybrid_search.py "<关键词>"`<br/>用户提出模糊查文件、找资料时秒级调用 |
+| `smart_flashback.py` | 历史笔记时空闪回与跨周期灵感漫步 | `python3 scripts/smart_flashback.py "<业务主题>"`<br/>用户思考新业务时自动联想历史沉淀 |
+| `clip_url.py` | 工业级网页/公众号降噪去广告提纯管道 | `python3 scripts/clip_url.py "<URL>"`<br/>用户发来文章/微信 URL 链接时调用 |
+| `export_note.py` | 商业级 Word (.docx) / 打印排版 HTML 导出 | `python3 scripts/export_note.py "<文件路径>" [docx\|html\|all]`<br/>用户要求将笔记发给客户或导出时调用 |
+| `transcribe_audio.py` | Faster-Whisper 本地离线高精度听写提纯 | `python3 scripts/transcribe_audio.py "<音频路径>" [tiny\|base\|small]`<br/>用户发来录音文件（.m4a/.mp3/.wav）时调用 |
+| `graph_diagnosis.py` | 图网络拓扑、超级中枢与动态业务断层算法诊断 | `python3 scripts/graph_diagnosis.py`<br/>用户询问知识库盲区或宏观结构时调用 |
+| `generate_digest.py` | 动态数字大脑生长态势与里程碑简报 | `python3 scripts/generate_digest.py`<br/>月末复盘或用户要求查看大脑成长时调用 |
+| `weave_links.py` | 知识图谱孤岛提及自动探测与双向编织 | `python3 scripts/weave_links.py [--auto]`<br/>定期图谱自愈、织密上下文网络时调用（`--auto` 写入） |
+| `scan_unlinked.py` | 隐式提及与未链接概念网络深度探测 | `python3 scripts/scan_unlinked.py`<br/>探测库内已提及但未打双链的高频概念 |
+| `verify_validity.py` | 客观知识有效性规则裁决审计 (整体/部分/失效) | `python3 scripts/verify_validity.py [--fix]`<br/>入库校验与全库状态客观校准时调用 |
+| `scan_pulse.py` | 30天动态生命周期与 mtime 活跃热力感知 | `python3 scripts/scan_pulse.py`<br/>保持作战看板动态更迭时调用 |
+| `verify_links.py` | 全库双向链接零死链与 YAML 语法合规体检 | `python3 scripts/verify_links.py`<br/>日常维护与健康巡检时调用 |
+| `sync_config.py` | 配置自动提炼与版本跃迁双链自愈引擎 | `python3 scripts/sync_config.py`<br/>嗅探新客户目录、别名与版本更新时调用 |
+| `vault_db.py` | SQLite 持久化索引引擎 (WAL + mmap + 增量同步) | `python3 scripts/vault_db.py`<br/>初始化、重建索引或持久化健康自检时调用 |
+| `vault_doctor.py` | 一体化全息体检医生 (链接/有效性/热力/自愈) | `python3 scripts/vault_doctor.py`<br/>全面系统体检与交付自愈时一键调用 |
 
 ---
 

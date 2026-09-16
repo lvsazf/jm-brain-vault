@@ -6,13 +6,17 @@ import yaml
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path
+from config_loader import get_vault_path, is_ignored_path
 
 vault_path = get_vault_path()
+if not os.path.exists(vault_path):
+    print(f"⚠️ [verify_links] 知识库目录不存在: {vault_path}")
+    print("   请在 .config.toml 中配置正确的 [vault].root 路径。")
+    sys.exit(0)
 
 all_files = set()
 for root, dirs, files in os.walk(vault_path):
-    if ".obsidian" in root or "newdao-ide-windows" in root or "jdk" in root:
+    if is_ignored_path(root):
         continue
     for f in files:
         all_files.add(f)
@@ -28,7 +32,7 @@ total_md = 0
 total_links = 0
 
 for root, dirs, files in os.walk(vault_path):
-    if ".obsidian" in root or "newdao-ide-windows" in root or "jdk" in root:
+    if is_ignored_path(root):
         continue
     for f in files:
         if f.endswith(".md") and not f.startswith("."):

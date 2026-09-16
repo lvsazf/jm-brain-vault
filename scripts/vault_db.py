@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import SKILL_ROOT, get_vault_path, get_synonyms
+from config_loader import SKILL_ROOT, get_vault_path, get_synonyms, is_ignored_path
 
 DB_PATH = SKILL_ROOT / ".vault_index.db"
 DAY_SECS = 86400
@@ -87,7 +87,7 @@ def sync_index(vault_path: Optional[str] = None, force: bool = False) -> Dict[st
     # Scan vault filesystem
     fs_files = {}
     for root, dirs, files in os.walk(vault_path):
-        if ".obsidian" in root or "newdao-ide-windows" in root or "jdk" in root:
+        if is_ignored_path(root):
             continue
         for f in files:
             if f.endswith(".md") and not f.startswith("."):

@@ -26,7 +26,7 @@
 
 ### 第一步：运行热度扫描脚本
 ```bash
-python3 ~/.gemini/config/skills/jm-brain-vault/scripts/scan_pulse.py
+python3 scripts/scan_pulse.py
 ```
 * 统计库内各板块在过去 30 天的更新频率；
 * 标记出“最新高频项目（建议升格）”与“超期休眠项目（建议降级）”。

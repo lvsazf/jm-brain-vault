@@ -6,22 +6,34 @@ import datetime
 from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path
+from config_loader import get_vault_path, is_ignored_path, load_config, get_metabolism_settings
 
 vault_path = get_vault_path()
+if not os.path.exists(vault_path):
+    print(f"⚠️ [scan_pulse] 知识库目录不存在: {vault_path}")
+    print("   请在 .config.toml 中配置正确的 [vault].root 路径。")
+    sys.exit(0)
+
+cfg = load_config()
+inbox_folder = cfg.get("vault", {}).get("inbox_folder", "00_Inbox")
+meta_cfg = get_metabolism_settings()
+hot_days = meta_cfg.get("hot_days", 7)
+active_days = meta_cfg.get("active_days", 30)
+dormant_days = meta_cfg.get("dormant_days", 60)
+
 now = time.time()
 DAY_SECS = 86400
 
-tier1_hot = []      # < 7 days
-tier2_active = []   # 7 - 30 days
-tier3_cool = []     # 30 - 60 days
-tier4_cold = []     # > 60 days
+tier1_hot = []      # <= hot_days
+tier2_active = []   # hot_days - active_days
+tier3_cool = []     # active_days - dormant_days
+tier4_cold = []     # > dormant_days
 inbox_items = []
 
 subsystem_activity = defaultdict(lambda: {"count": 0, "latest_mtime": 0, "recent_30d": 0})
 
 for root, dirs, files in os.walk(vault_path):
-    if ".obsidian" in root or "newdao-ide-windows" in root or "jdk" in root:
+    if is_ignored_path(root):
         continue
     for f in files:
         if f.startswith("."):
@@ -39,17 +51,17 @@ for root, dirs, files in os.walk(vault_path):
             subsystem_activity[top_dir]["count"] += 1
             if mtime > subsystem_activity[top_dir]["latest_mtime"]:
                 subsystem_activity[top_dir]["latest_mtime"] = mtime
-            if age_days <= 30:
+            if age_days <= active_days:
                 subsystem_activity[top_dir]["recent_30d"] += 1
 
-            if rel.startswith("00_Inbox/"):
+            if rel.startswith(f"{inbox_folder}/"):
                 inbox_items.append((age_days, rel))
 
-            if age_days <= 7:
+            if age_days <= hot_days:
                 tier1_hot.append((mtime, rel))
-            elif age_days <= 30:
+            elif age_days <= active_days:
                 tier2_active.append((mtime, rel))
-            elif age_days <= 60:
+            elif age_days <= dormant_days:
                 tier3_cool.append((mtime, rel))
             else:
                 tier4_cold.append((mtime, rel))

@@ -15,9 +15,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config_loader import get_vault_path, get_export_settings
 
 vault_path = get_vault_path()
+if not os.path.exists(vault_path):
+    print(f"⚠️ [export_note] 知识库目录不存在: {vault_path}")
+    print("   请在 .config.toml 中配置正确的 [vault].root 路径。")
+    sys.exit(0)
+
 export_settings = get_export_settings()
 header_text = export_settings.get("docx_header", "商业数字大脑交付案卷")
-export_dir = os.path.join(vault_path, "04_Knowledge_Archive", "Exports")
+exp_sub = export_settings.get("export_dir", "Exports")
+export_dir = os.path.join(vault_path, exp_sub) if not os.path.isabs(exp_sub) else exp_sub
 os.makedirs(export_dir, exist_ok=True)
 
 md_path = sys.argv[1] if len(sys.argv) > 1 else ""

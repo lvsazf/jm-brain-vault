@@ -3,7 +3,7 @@
 clip_url.py
 Intelligent Web Clipper for Brain_Vault.
 Extracts clean Markdown from public URLs, strips clutter,
-injects standard YAML frontmatter, and archives into 04_Knowledge_Archive/Web_Clips/.
+injects standard YAML frontmatter, and archives into configured web_clip output directory.
 """
 
 import os
@@ -14,10 +14,17 @@ import urllib.request
 from html.parser import HTMLParser
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import get_vault_path
+from config_loader import get_vault_path, get_web_clip_settings
 
 vault_path = get_vault_path()
-clips_dir = os.path.join(vault_path, "04_Knowledge_Archive", "Web_Clips")
+if not os.path.exists(vault_path):
+    print(f"⚠️ [clip_url] 知识库目录不存在: {vault_path}")
+    print("   请在 .config.toml 中配置正确的 [vault].root 路径。")
+    sys.exit(0)
+
+wc_cfg = get_web_clip_settings()
+wc_sub = wc_cfg.get("output_dir", "Web_Clips")
+clips_dir = os.path.join(vault_path, wc_sub) if not os.path.isabs(wc_sub) else wc_sub
 os.makedirs(clips_dir, exist_ok=True)
 
 url = sys.argv[1] if len(sys.argv) > 1 else ""

@@ -18,7 +18,7 @@ from collections import defaultdict
 import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config_loader import SKILL_ROOT, CONFIG_PATH, TEMPLATE_PATH, get_vault_path, load_config
+from config_loader import SKILL_ROOT, CONFIG_PATH, TEMPLATE_PATH, get_vault_path, load_config, is_ignored_path
 
 vault_path = get_vault_path()
 
@@ -35,8 +35,20 @@ new_links_count = 0
 healed_links_count = 0
 
 # 1. Scan Client Deliveries for new accounts
-client_dir = os.path.join(vault_path, "02_Enterprise_AI", "Client_Deliveries")
-if os.path.exists(client_dir):
+client_folder = cfg.get("vault", {}).get("clients_folder")
+client_dir = None
+if client_folder:
+    target_c = os.path.join(vault_path, client_folder) if not os.path.isabs(client_folder) else client_folder
+    if os.path.exists(target_c):
+        client_dir = target_c
+else:
+    for cand in ["02_Enterprise_AI/Client_Deliveries", "Client_Deliveries", "Clients", "02_Clients", "客户案卷"]:
+        target_c = os.path.join(vault_path, cand)
+        if os.path.exists(target_c) and os.path.isdir(target_c):
+            client_dir = target_c
+            break
+
+if client_dir and os.path.exists(client_dir):
     for entry in os.listdir(client_dir):
         full_sub = os.path.join(client_dir, entry)
         if os.path.isdir(full_sub) and not entry.startswith("."):
@@ -61,7 +73,7 @@ alias_discovered = defaultdict(list)
 superseded_map = {} # old_note -> new_note
 
 for root, dirs, files in os.walk(vault_path):
-    if ".obsidian" in root or "newdao-ide-windows" in root or "jdk" in root:
+    if is_ignored_path(root):
         continue
     for f in files:
         if f.endswith(".md") and not f.startswith("."):
@@ -112,6 +124,17 @@ for entity, link_target in list(entity_links.items()):
 
 # Write back to .config.toml
 def format_toml(c_dict):
+    v = c_dict.get("vault", {})
+    ign_list = ", ".join([f'"{x}"' for x in v.get("ignore_patterns", [])])
+    ext_list = ", ".join([f'"{x}"' for x in v.get("valid_extensions", [".md", ".canvas", ".base"])])
+    db = c_dict.get("database", {})
+    usr = c_dict.get("user_profile", {})
+    exp = c_dict.get("export_settings", {})
+    tr = c_dict.get("transcribe", {})
+    wc = c_dict.get("web_clip", {})
+    dg = c_dict.get("digest", {})
+    mt = c_dict.get("metabolism", {})
+
     out = [
         "# ==============================================================================",
         "# JM Brain Vault 本地私有配置文件 (Local Private Config)",
@@ -119,25 +142,50 @@ def format_toml(c_dict):
         "# ==============================================================================",
         "",
         "[vault]",
-        f'root = "{c_dict.get("vault", {}).get("root", "~/Documents/Brain_Vault")}"',
-        f'inbox_folder = "{c_dict.get("vault", {}).get("inbox_folder", "00_Inbox")}"',
-        f'archive_folder = "{c_dict.get("vault", {}).get("archive_folder", "99_Archive")}"',
+        f'root = "{v.get("root", "~/Documents/Brain_Vault")}"',
+        f'inbox_folder = "{v.get("inbox_folder", "00_Inbox")}"',
+        f'archive_folder = "{v.get("archive_folder", "99_Archive")}"',
+        f'ignore_patterns = [{ign_list}]',
+        f'valid_extensions = [{ext_list}]',
+        "",
+        "[database]",
+        f'db_path = "{db.get("db_path", ".vault_index.db")}"',
+        f'mmap_size_mb = {db.get("mmap_size_mb", 256)}',
+        f'cache_size_kb = {db.get("cache_size_kb", 64000)}',
+        f'min_trigram_len = {db.get("min_trigram_len", 3)}',
         "",
         "[user_profile]",
-        f'owner_name = "{c_dict.get("user_profile", {}).get("owner_name", "知识库主人")}"',
-        f'brain_title = "{c_dict.get("user_profile", {}).get("brain_title", "商业数字大脑")}"',
+        f'owner_name = "{usr.get("owner_name", "知识库主人")}"',
+        f'brain_title = "{usr.get("brain_title", "商业数字大脑")}"',
         "",
         "[export_settings]",
-        f'docx_header = "{c_dict.get("export_settings", {}).get("docx_header", "商业数字大脑交付案卷")}"',
-        f'default_author = "{c_dict.get("export_settings", {}).get("default_author", "知识库主人")}"',
+        f'docx_header = "{exp.get("docx_header", "商业数字大脑交付案卷")}"',
+        f'default_author = "{exp.get("default_author", "知识库主人")}"',
+        f'export_dir = "{exp.get("export_dir", "Exports")}"',
+        "",
+        "[transcribe]",
+        f'model_size = "{tr.get("model_size", "base")}"',
+        f'language = "{tr.get("language", "zh")}"',
+        f'output_dir = "{tr.get("output_dir", "Voice_Notes")}"',
+        "",
+        "[web_clip]",
+        f'output_dir = "{wc.get("output_dir", "Web_Clips")}"',
+        "",
+        "[digest]",
+        f'output_dir = "{dg.get("output_dir", "Digests")}"',
+        "",
+        "[metabolism]",
+        f'hot_days = {mt.get("hot_days", 7)}',
+        f'active_days = {mt.get("active_days", 30)}',
+        f'dormant_days = {mt.get("dormant_days", 60)}',
         "",
         "# ------------------------------------------------------------------------------",
         "# 智能模糊检索同义词与意图展开 (Synonym & Domain Mapping)",
         "# ------------------------------------------------------------------------------",
         "[search_synonyms]"
     ]
-    for k, v in c_dict.get("search_synonyms", {}).items():
-        vals = ", ".join([f'"{x}"' for x in v])
+    for k, val in c_dict.get("search_synonyms", {}).items():
+        vals = ", ".join([f'"{x}"' for x in val])
         out.append(f'"{k}" = [{vals}]')
 
     out.append("")
@@ -145,8 +193,8 @@ def format_toml(c_dict):
     out.append("# 实体高价值双向链接自动编织映射表 (Entity Auto Wikilinks)")
     out.append("# ------------------------------------------------------------------------------")
     out.append("[entity_auto_links]")
-    for k, v in c_dict.get("entity_auto_links", {}).items():
-        out.append(f'"{k}" = "{v}"')
+    for k, val in c_dict.get("entity_auto_links", {}).items():
+        out.append(f'"{k}" = "{val}"')
     
     out.append("")
     return "\n".join(out)
