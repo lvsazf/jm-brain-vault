@@ -64,11 +64,17 @@ if [ -d "$HOME/.gemini" ]; then
     fi
 fi
 
-# 4.2 Claude Code Integration Guide
+# 4.2 Hermes Agent Integration
+echo -e "  • ${GREEN}Hermes Agent 支持${NC}: 可作为专属长期记忆检索与知识中枢 Toolset 直接挂载"
+
+# 4.3 Codex / OpenAI Agents
+echo -e "  • ${GREEN}Codex / OpenAI 支持${NC}: 通过 \`AGENTS.md\` 声明知识中枢客观四态有效性与存盘规约"
+
+# 4.4 Claude Code Integration Guide
 echo -e "  • ${GREEN}Claude Code 支持${NC}: 运行 \`claude\` 并在你的项目中通过 \`CLAUDE.md\` 引用本库命令"
 
-# 4.3 Cursor / Windsurf Rules
-echo -e "  • ${GREEN}Cursor / Windsurf 支持${NC}: 可将本库的 SKILL.md 规则引用至 \`.cursorrules\`"
+# 4.5 Cursor / Windsurf Rules
+echo -e "  • ${GREEN}Cursor / Windsurf 支持${NC}: 可将本库规则引用至 \`.cursorrules\` 或 \`.windsurfrules\`"
 
 # 5. Run Verification Doctor
 echo -e "\n${BLUE}======================================================================${NC}"

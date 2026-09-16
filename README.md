@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/Python-3.11+-brightgreen.svg" alt="Python Version">
   <img src="https://img.shields.io/badge/Obsidian-Native%20Bases%20%26%20Canvas-purple.svg" alt="Obsidian">
-  <img src="https://img.shields.io/badge/Multi--Agent-Antigravity%20|%20Claude%20Code%20|%20Cursor%20|%20CLI-orange.svg" alt="Multi-Agent Supported">
+  <img src="https://img.shields.io/badge/Multi--Agent-Hermes%20|%20Codex%20|%20Antigravity%20|%20Claude%20Code%20|%20Cursor-orange.svg" alt="Multi-Agent Supported">
   <img src="https://img.shields.io/badge/Architecture-Zero--Leak%20Config-success.svg" alt="Architecture">
 </p>
 
@@ -17,15 +17,16 @@
 
 `JM Brain Vault` 采用 **Agent-Agnostic（智能体中立）** 架构设计。底层由**工业级规范提示词（SKILL.md / references）**、**纯本地 Python 算法引擎（scripts/）** 以及 **TOML 隐藏配置** 组成。
 
-它原生适配目前市面所有具备终端执行或提示词挂载能力的主流 AI Coding Agent：
+它原生适配目前市面所有主流 AI Agent 框架与开发环境：
 
-| AI Agent 载体 | 适配方式 | 用户体验 |
+| AI Agent 载体 | 适配方式 | 交互与应用体验 |
 | :--- | :--- | :--- |
-| 🪐 **Google Antigravity / Gemini CLI** | 原生 Skill (`~/.gemini/config/skills/`) | 对话框直接发需求，AI 自主多模态编排调度 |
-| 🟣 **Claude Code (Anthropic)** | 通过 `CLAUDE.md` 或终端直接调用 | 强大的代码理解能力配合本地混合搜索与体检 |
+| 🦅 **Hermes Agent** | 作为专属长期工作记忆与中枢 Toolset 挂载 | 原生记忆织网、有效性校验与多模态资产检索 |
+| 🧠 **Codex / OpenAI Agent** | 通过 `AGENTS.md` / System Prompt 规则驱动 | 执行严格的物理零篡改存盘红线与客观四态研判 |
+| 🪐 **Google Antigravity / Gemini CLI** | 原生 Skill 挂载 (`~/.gemini/config/skills/`) | 对话框直接发需求，AI 自主多模态路由编排 |
+| 🟣 **Claude Code (Anthropic)** | 在 `CLAUDE.md` 声明工具指令或终端直接调用 | 强大推理能力配合本地混合搜索、体检与自愈 |
 | ⚡ **Cursor / Windsurf** | 引入 `.cursorrules` / `.windsurfrules` | 在 IDE 边写笔记/代码边秒级呼出图谱与导出 |
-| 🤖 **Hermes Agent / OpenHands / Bolt** | 作为底层知识管理中台工具库挂载 | 具备记忆自愈与知识有效性判定的 Agent 外脑 |
-| 💻 **独立终端 (Standalone Python CLI)** | 直接运行 `python3 scripts/vault_doctor.py` | 即使脱离任何 AI，人类也能一键搜索、体检与导出 |
+| 💻 **独立终端 (Standalone Python CLI)** | 直接运行 `python3 scripts/vault_doctor.py` | 即使脱离任何 AI，人类也能一键检索、体检与导出 |
 
 ---
 
@@ -72,58 +73,76 @@
 
 ---
 
-## 🚀 快速安装与多 Agent 配置 (Quickstart & Setup)
+## 🚀 快速安装 (Quick Installation)
 
-### 方式一：一键自动安装（推荐）
+无论你使用哪种 Agent 载体，第一步先克隆代码并执行一键配置程序：
 
-通过终端执行一键安装程序（自动检测环境、安装依赖、初始化配置并挂载智能体）：
 ```bash
 git clone https://github.com/lvsazf/jm-brain-vault.git
 cd jm-brain-vault
 ./install.sh
 ```
 
+> **`./install.sh` 执行动作**：自动检测 Python 3.11+ 环境、自动安装依赖、基于模板初始化隐藏配置文件 `.config.toml`，并自动探测当前机器上的 Agent 环境完成软链挂载。
+
 ---
 
-### 方式二：主流 AI Agent 专属接入指引
+## 🔌 主流 AI Agent 接入配置 (Agent Integration Guides)
 
-#### 1. 🪐 Google Antigravity / Gemini CLI
-克隆至 Antigravity 技能库目录即可开箱即用：
-```bash
-git clone https://github.com/lvsazf/jm-brain-vault.git ~/.gemini/config/skills/jm-brain-vault
-cd ~/.gemini/config/skills/jm-brain-vault
-cp .config.template.toml .config.toml
-pip install -r requirements.txt
+安装完成后，根据你的主力 AI 工具，选择对应的配置方式：
+
+### 1. 🦅 Hermes Agent 接入
+在你的 Hermes Agent 工作区中，将 `scripts/` 作为长期记忆与知识中枢 Toolset 挂载：
+```python
+# Hermes Agent 工具链挂载示例
+from scripts.config_loader import get_vault_path
+from scripts.hybrid_search import search_vault
+from scripts.vault_doctor import run_health_check
 ```
-> **体验方式**：在 Antigravity 对话框中自然交互（如 *“帮我把这份行业调研整理进企业AI库”* 或 *“找一下关于门店数字化的最新方案”*）。
+*或者直接配置 Hermes 的 Shell 执行权限*，让 Hermes 自主根据用户问题调用：
+```bash
+python3 <skill-path>/scripts/hybrid_search.py "<query>"
+```
 
-#### 2. 🟣 Claude Code (Anthropic)
-在你的项目或工作区根目录下创建或在 `CLAUDE.md` 中添加以下指引：
+### 2. 🧠 Codex / OpenAI Agent 接入
+在项目根目录创建或追加至 `AGENTS.md`（或用于 Codex 的系统指令文件）：
+```markdown
+# 知识中枢治理规约 (Brain Vault Invariants)
+- 知识库根路径: `~/Documents/Brain_Vault`
+- 文件直传模式: 正文必须 100% 物理零篡改，比对 MD5 防止同名覆盖；
+- 知识有效性状态: 严格按照【状态/整体有效】【状态/部分有效】【状态/失效归档】【状态/客观事实】客观裁决；
+- 资料检索: 优先执行 `python3 <skill-path>/scripts/hybrid_search.py "<query>"` 并向用户提供 Mac 访达直达命令 `open -R "<path>"`;
+- 关联编织: 定期调度 `python3 <skill-path>/scripts/weave_links.py`。
+```
+
+### 3. 🟣 Claude Code (Anthropic) 接入
+在你的工作区根目录下创建或配置 `CLAUDE.md`：
 ```markdown
 ## Brain Vault 知识中枢调用指令
-当需要检索历史资料、检查知识库健康度或导出文档时，可直接在终端执行：
+当需要检索历史资料、检查知识库健康度或导出交付物时，直接调用：
 - 混合语义搜索: `python3 <skill-path>/scripts/hybrid_search.py "<关键词>"`
-- 全息健康体检: `python3 <skill-path>/scripts/vault_doctor.py`
+- 全息健康自愈: `python3 <skill-path>/scripts/vault_doctor.py`
 - 商业排版导出: `python3 <skill-path>/scripts/export_note.py "<file.md>" all`
 ```
 
-#### 3. ⚡ Cursor / Windsurf
-在工作区根目录下的 `.cursorrules` 或 `.windsurfrules` 中添加：
+### 4. 🪐 Google Antigravity / Gemini CLI 接入
+`install.sh` 已自动将本库软链接至 `~/.gemini/config/skills/jm-brain-vault`。
+> **直接交互**：在 Antigravity 聊天框中自然对话（如：*“帮我把这份行业调研整理进企业AI库”* 或 *“查一下关于烟酒零售的最新方案”*），AI 自动研判意图并驱动底层工具。
+
+### 5. ⚡ Cursor / Windsurf 接入
+在项目根目录下的 `.cursorrules` 或 `.windsurfrules` 中添加：
 ```markdown
 # Brain Vault Rules
-知识库位于 `~/Documents/Brain_Vault`，遵循以下准则：
-1. 文件直传 100% 物理零篡改；
-2. 知识状态严格按【状态/整体有效】【状态/部分有效】【状态/失效归档】客观标记；
-3. 需要查资料时调用 `python3 <skill-path>/scripts/hybrid_search.py "<query>"`。
+知识库位于 `~/Documents/Brain_Vault`，编码与整理文档时遵循客观四态有效性校验，检索资料优先运行 `python3 <skill-path>/scripts/hybrid_search.py "<query>"`。
 ```
 
-#### 4. 💻 独立终端 CLI 用户
-日常无需启动任何 AI Agent，随时在命令行直接运行命令管理知识库：
+### 6. 💻 独立终端 CLI 运行 (无需 Agent)
+日常脱离任何 AI，直接在终端执行命令行工具管理知识库：
 ```bash
-# 1. 混合语义检索（自动同义词展开 + BM25 排序 + Finder 一键高亮）
+# 1. 秒级混合语义检索（自动同义词展开 + BM25 排序 + Finder 一键高亮）
 python3 scripts/hybrid_search.py "零售方案"
 
-# 2. 一键全息体检与配置自愈
+# 2. 一体化全息体检与配置自愈
 python3 scripts/vault_doctor.py
 
 # 3. 将任意 Markdown 导出为精美 Word (.docx) 和排版 HTML
