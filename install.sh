@@ -78,6 +78,9 @@ echo -e "  • ${GREEN}Cursor / Windsurf 支持${NC}: 可将本库规则引用�
 
 # 5. Pre-warm Persistent SQLite Database (.vault_index.db)
 echo -e "\n${YELLOW}[5/5] 初始化并预热持久化 SQLite 索引 (.vault_index.db)...${NC}"
+if command -v git &> /dev/null && [ -d ".git" ]; then
+    git update-index --skip-worktree .vault_index.db 2>/dev/null || true
+fi
 python3 scripts/vault_db.py || true
 
 # 6. Run Verification Doctor
