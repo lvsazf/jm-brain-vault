@@ -17,7 +17,9 @@ ignore_patterns = [                   # 全局巡检、搜索与织网排除目�
     ".trash",
     ".git",
     "node_modules",
-    "__pycache__"
+    "__pycache__",
+    "newdao-ide-windows",
+    "jdk"
 ]
 valid_extensions = [".md", ".canvas", ".base"]
 

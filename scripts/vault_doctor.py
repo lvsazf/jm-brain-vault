@@ -23,9 +23,9 @@ print("=" * 70)
 print("\n[检查 1/6] 双向链接与 YAML 语法合规性体检...")
 subprocess.run([sys.executable, os.path.join(scripts_dir, "verify_links.py")])
 
-# Check 2: Objective Validity Verification
-print("\n[检查 2/6] 客观知识有效性规则裁决审计...")
-subprocess.run([sys.executable, os.path.join(scripts_dir, "verify_validity.py")])
+# Check 2: Objective Validity Verification & Autonomous Auto-Heal
+print("\n[检查 2/6] 客观知识有效性规则裁决与自动闭环校准...")
+subprocess.run([sys.executable, os.path.join(scripts_dir, "verify_validity.py"), "--fix"])
 
 # Check 3: Metabolism & Pulse
 print("\n[检查 3/6] 30天动态代谢与活跃热力感知...")

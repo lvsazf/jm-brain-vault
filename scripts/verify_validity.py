@@ -86,11 +86,13 @@ for root, dirs, files in os.walk(vault_path):
                 or "/_Archive" in rel_p or "Career_Archive" in rel_p or "Welcome.md" in f or "失效归档" in str(current_status)):
                 is_superseded = True
             
-            clean_body = re.sub(r"```.*?```", "", content, flags=re.DOTALL)
-            clean_body = re.sub(r"`.*?`", "", clean_body)
+            clean_body = re.sub(r"```[\s\S]*?```", "", content)
+            clean_body = re.sub(r"`[^`\n]+`", "", clean_body)
             clean_lines = [l for l in clean_body.splitlines() if not l.strip().startswith("|") and not l.strip().startswith(">")]
             clean_text = "\n".join(clean_lines)
-            has_pending = any(m in clean_text for m in pending_markers)
+            # Ignore markers if they appear inside quotes as rule/spec examples (e.g. 包含“待补充”)
+            unquoted_text = re.sub(r'[“"\'「][^“"\'」\n]*?[”"\'」]', '', clean_text)
+            has_pending = any(m in unquoted_text for m in pending_markers)
             
             if is_superseded:
                 rule_status = "状态/失效归档"
@@ -99,7 +101,7 @@ for root, dirs, files in os.walk(vault_path):
                 rule_status = "状态/客观事实"
                 reasons = "属于不可变客观资产/法务财务底座"
             elif has_pending:
-                found = [m for m in pending_markers if m in clean_text]
+                found = [m for m in pending_markers if m in unquoted_text]
                 m_str = ", ".join(found[:2])
                 rule_status = "状态/部分有效"
                 reasons = f"正文中包含未决标记: {m_str}"
@@ -121,8 +123,10 @@ for root, dirs, files in os.walk(vault_path):
                         else:
                             yaml_str = f"status: {rule_status}\n" + yaml_str.strip() + "\n"
                         new_content = f"---{yaml_str}---" + parts[2]
-                        with open(full_p, "w", encoding="utf-8") as fp:
-                            fp.write(new_content)
+                    else:
+                        new_content = f"---\nstatus: {rule_status}\n---\n\n" + content
+                    with open(full_p, "w", encoding="utf-8") as fp:
+                        fp.write(new_content)
 
 print("=" * 65)
 print("⚖️  Brain_Vault 文档客观知识有效性校验审计报告")

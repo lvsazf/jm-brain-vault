@@ -52,8 +52,17 @@ for root, dirs, files in os.walk(vault_path):
                         yaml_errors.append((rel_p, str(e)))
 
             # Link check - ignore links inside code blocks
-            clean_content = re.sub(r'```.*?```', '', content, flags=re.DOTALL)
-            clean_content = re.sub(r'`.*?`', '', clean_content)
+            lines = content.splitlines()
+            out = []
+            in_code = False
+            for line in lines:
+                if line.strip().startswith('```'):
+                    in_code = not in_code
+                    continue
+                if not in_code:
+                    out.append(line)
+            clean_content = '\n'.join(out)
+            clean_content = re.sub(r'`[^`\n]+`', '', clean_content)
             links = link_regex.findall(clean_content)
             total_links += len(links)
             for link in links:
